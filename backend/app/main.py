@@ -39,7 +39,6 @@ app.add_middleware(
 # Đây là bước quan trọng để các API trong auth.py hoạt động
 app.include_router(auth.router)
 # Sau này có thêm router khác thì thêm vào đây:
-    # Đăng ký các router khác
 app.include_router(product.router)
 # app.include_router(cart.router)
 
