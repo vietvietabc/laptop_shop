@@ -1,20 +1,29 @@
-from sqlalchemy import Column, Integer, ForeignKey, Float
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from ..database import Base
+from database import Base  # ✓ Sửa: bỏ "backend."
 
 class Cart(Base):
     __tablename__ = "carts"
+
+    # @Id @GeneratedValue
     id = Column(Integer, primary_key=True, index=True)
+
+    # @Min(value = 0) - Validation sẽ nằm ở Schema (Pydantic)
+    # Tên biến 'sum' trong Python trùng với hàm tính tổng có sẵn, 
+    # nhưng trong class scope thì vẫn dùng được. 
+    # Tuy nhiên, khuyến khích đổi tên thành 'total' hoặc 'quantity_sum'.
+    sum = Column(Integer, default=0)
+
+    # @OneToOne @JoinColumn(name = "user_id")
+    # Trong database, OneToOne thực chất là ForeignKey có rằng buộc Unique
     user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    
+    # Relationship ngược lại với User
     user = relationship("User", back_populates="cart")
+
+    # @OneToMany(mappedBy = "cart")
+    # Đổi tên CartDetail (Java) -> cart_details (Python chuẩn snake_case)
     cart_details = relationship("CartDetail", back_populates="cart")
 
-class CartDetail(Base):
-    __tablename__ = "cart_details"
-    id = Column(Integer, primary_key=True, index=True)
-    cart_id = Column(Integer, ForeignKey("carts.id"))
-    product_id = Column(Integer, ForeignKey("products.id"))
-    quantity = Column(Integer, default=1)
-    
-    cart = relationship("Cart", back_populates="cart_details")
-    product = relationship("Product") # Link tới Product
+    def __repr__(self):
+        return f"<Cart(id={self.id}, sum={self.sum})>"

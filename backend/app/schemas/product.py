@@ -1,17 +1,33 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 class ProductBase(BaseModel):
-    name: str
-    price: float
-    description: Optional[str] = None
+    name: Optional[str] = None
+    price: float = Field(..., gt=0)
+    image: Optional[str] = None
+    detail_desc: str = Field(..., min_length=1)
+    short_desc: Optional[str] = None
+    quantity: int = Field(..., ge=0)
+    sold: Optional[int] = 0
     factory: Optional[str] = None
+    target: Optional[str] = None
 
 class ProductCreate(ProductBase):
     pass
 
-class ProductResponse(ProductBase):
-    id: int
+class ProductUpdate(BaseModel):
+    # Dùng cho API sửa, cho phép gửi lẻ từng trường
+    name: Optional[str] = None
+    price: Optional[float] = Field(None, gt=0)
     image: Optional[str] = None
+    detail_desc: Optional[str] = Field(None, min_length=1)
+    short_desc: Optional[str] = None
+    quantity: Optional[int] = Field(None, ge=0)
+    factory: Optional[str] = None
+    target: Optional[str] = None
+
+class ProductOut(ProductBase):
+    id: int
+
     class Config:
         from_attributes = True

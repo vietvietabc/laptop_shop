@@ -1,28 +1,26 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, Field
+from typing import Optional, List
 
-# --- Định nghĩa lại ProductResponse rút gọn ở đây để tránh import chéo file product.py ---
-class ProductRef(BaseModel):
-    id: int
-    name: str
-    price: float
-    image: Optional[str] = None
-    class Config:
-        from_attributes = True
+# Base class
+class CartBase(BaseModel):
+    # @Min(value = 0) -> ge=0 (greater or equal 0)
+    sum: int = Field(0, ge=0)
 
-# Schema hiển thị từng món hàng
-class CartItemResponse(BaseModel):
-    id: int
-    quantity: int
-    product: ProductRef # Nhúng thông tin sản phẩm
-    class Config:
-        from_attributes = True
+# Dùng cho Request tạo mới (Thường Cart được tạo tự động kèm User, không cần client gửi)
+class CartCreate(CartBase):
+    pass
 
-# Schema hiển thị giỏ hàng tổng
-class CartResponse(BaseModel):
+# Dùng cho Request Update (Cập nhật tổng số lượng)
+class CartUpdate(CartBase):
+    pass
+
+# Dùng cho Response
+class CartResponse(CartBase):
     id: int
-    # user: UserResponse  <-- XÓA DÒNG NÀY ĐI (Thủ phạm gây xoay vòng)
-    cart_details: List[CartItemResponse] = []
+    user_id: int
     
+    # Nếu muốn trả về danh sách chi tiết giỏ hàng
+    # cart_details: List[CartDetailResponse] = []
+
     class Config:
         from_attributes = True

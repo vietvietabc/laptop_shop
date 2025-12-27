@@ -1,39 +1,43 @@
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-import os
+from sqlalchemy.orm import Session
 
-from .database import engine, Base
-from .config import settings
+from database import engine, Base, SessionLocal
+from .routers import auth, product  # Import routers (Auth và Product)
+from .models import Role, User # Import models để SQLAlchemy nhận diện bảng
 
-# --- IMPORT TẤT CẢ MODELS TẠI ĐÂY ---
-from .models import role, user, product, cart 
-# ------------------------------------
-
-from .routers import auth, products
-
-# Tạo bảng database
+# --- 2. Tạo bảng trong Database (nếu chưa có) ---
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(
+    title="Laptop Shop API",
+    description="API cho ứng dụng bán laptop với Authentication",
+    version="1.0.0"
+)
 
-# CORS
+# --- 3. Cấu hình CORS ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Production nên đổi thành domain frontend cụ thể (vd: ["http://localhost:3000"])
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Static file (Ảnh)
-os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-app.mount("/static", StaticFiles(directory=settings.UPLOAD_DIR), name="static")
-
-# Routers
+# --- 4. Đăng ký các Router ---
+# Đây là bước quan trọng để các API trong auth.py hoạt động
 app.include_router(auth.router)
-app.include_router(products.router)
+# Sau này có thêm router khác thì thêm vào đây:
+# Đăng ký các router khác
+app.include_router(product.router)
+# app.include_router(cart.router)
 
+# --- 5. API Root ---
 @app.get("/")
 def root():
-    return {"message": "Laptop Shop API is running!"}
+    return {
+        "message": "Welcome to Laptop Shop API",
+        "docs_url": "/docs",
+        "redoc_url": "/redoc",
+        "version": "1.0.0"
+    }

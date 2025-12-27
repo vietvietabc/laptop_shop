@@ -1,24 +1,32 @@
-from pydantic import BaseModel
+# File: app/schemas/User.py
+
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 
-# Base schema
 class UserBase(BaseModel):
-    email: str
-    full_name: Optional[str] = None
-    phone: Optional[str] = None
+    email: EmailStr
+    full_name: str = Field(..., min_length=2, alias="fullName")
     address: Optional[str] = None
+    phone: Optional[str] = None
 
-class UserCreate(UserBase):
-    password: str
+class UserCreate(BaseModel): # Tạo riêng cho đăng ký, bỏ avatar
+    email: EmailStr
+    password: str = Field(..., min_length=6)
+    full_name: str = Field(..., min_length=2, alias="fullName")
+    address: Optional[str] = None
+    phone: Optional[str] = None
 
-# --- QUAN TRỌNG: UserResponse chỉ trả về thông tin cá nhân, KHÔNG trả về Cart hay Order ---
-class UserResponse(UserBase):
+class UserOut(UserBase):
     id: int
     role_id: int
-    
-    class Config:
-        from_attributes = True # Pydantic v2 dùng from_attributes thay vì orm_mode
+    avatar: Optional[str] = None
 
+    class Config:
+        from_attributes = True
+        populate_by_name = True
+
+# --- THÊM CLASS NÀY VÀO ---
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = "bearer"
+    user: UserOut
