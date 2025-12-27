@@ -15,10 +15,10 @@ def create_migration(message="Auto migration"):
     try:
         print(f"Đang tạo migration: {message}")
         command.revision(alembic_cfg, autogenerate=True, message=message)
-        print("✓ Tạo migration thành công!")
+        print("Tạo migration thành công!")
         print("\nĐể apply migration, chạy: python apply_migration.py")
     except Exception as e:
-        print(f"✗ Lỗi khi tạo migration: {e}")
+        print(f"Lỗi khi tạo migration: {e}")
 
 if __name__ == "__main__":
     # Lấy message từ command line hoặc dùng default

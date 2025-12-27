@@ -26,9 +26,9 @@ def downgrade_migration(steps=1):
     try:
         print(f"Đang rollback {steps} migration(s)...")
         command.downgrade(alembic_cfg, f"-{steps}")
-        print("✓ Rollback thành công!")
+        print("Rollback thành công!")
     except Exception as e:
-        print(f"✗ Lỗi khi rollback: {e}")
+        print(f"Lỗi khi rollback: {e}")
 
 def show_current():
     """Hiển thị migration hiện tại"""
@@ -37,7 +37,7 @@ def show_current():
     try:
         command.current(alembic_cfg)
     except Exception as e:
-        print(f"✗ Lỗi: {e}")
+        print(f"Lỗi: {e}")
 
 def show_history():
     """Hiển thị lịch sử migrations"""
@@ -46,7 +46,7 @@ def show_history():
     try:
         command.history(alembic_cfg)
     except Exception as e:
-        print(f"✗ Lỗi: {e}")
+        print(f"Lỗi: {e}")
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
