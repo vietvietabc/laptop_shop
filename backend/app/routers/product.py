@@ -4,6 +4,7 @@ from database import get_db
 from ..models.Product import Product
 from ..schemas.Product import ProductCreate, ProductOut, ProductUpdate
 from .auth import get_current_user 
+import os
 import shutil
 import uuid
 
