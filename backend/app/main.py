@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
 
 from database import engine, Base, SessionLocal
-from .routers import auth, product  # Import routers (Auth và Product)
+from .routers import auth, product, cart
 from .models import Role, User # Import models để SQLAlchemy nhận diện bảng
 
 # --- 2. Tạo bảng trong Database (nếu chưa có) ---
@@ -40,7 +40,7 @@ app.add_middleware(
 app.include_router(auth.router)
 # Sau này có thêm router khác thì thêm vào đây:
 app.include_router(product.router)
-# app.include_router(cart.router)
+app.include_router(cart.router)
 
 # --- 5. API Root ---
 @app.get("/")
