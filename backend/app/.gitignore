@@ -1,0 +1,15 @@
+# Chặn môi trường ảo
+.venv/
+venv/
+env/
+
+# Chặn file bảo mật
+.env
+
+# Chặn rác Python
+__pycache__/
+*.py[cod]
+
+# Chặn rác Frontend (Sau này code React/Vue sẽ cần)
+node_modules/
+.DS_Store
