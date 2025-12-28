@@ -80,3 +80,32 @@ def upload_product_image(
 
     # 5. Trả về tên file để sau này lưu vào Database
     return {"image_name": file_name, "url": f"/uploads/{file_name}"}
+
+@router.put("/{product_id}", response_model=ProductOut)
+def update_product(
+    product_id: int,
+    product_update: ProductUpdate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    # 1. Kiểm tra quyền Admin
+    if current_user.role_id != 1:
+        raise HTTPException(status_code=403, detail="Chỉ Admin mới được sửa sản phẩm")
+
+    # 2. Tìm sản phẩm trong DB
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Không tìm thấy sản phẩm")
+
+    # 3. Cập nhật dữ liệu (Chỉ cập nhật những trường Admin gửi lên)
+    # exclude_unset=True nghĩa là trường nào Admin không gửi thì giữ nguyên cái cũ
+    update_data = product_update.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(product, key, value) # Gán giá trị mới vào object product
+
+    # 4. Lưu thay đổi
+    db.commit()
+    db.refresh(product)
+    
+    return product
