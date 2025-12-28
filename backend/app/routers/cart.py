@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from database import get_db
 from ..models.Cart import Cart
+from ..schemas.Cart import CartOut
 from ..models.CartDetail import CartDetail
 from ..models.Product import Product
 from .auth import get_current_user
@@ -48,9 +49,12 @@ def add_to_cart(product_id: int, quantity: int, db: Session = Depends(get_db), c
     db.commit()
     return {"message": "Thêm vào giỏ hàng thành công", "current_sum": cart.sum}
 
-@router.get("/me")
+@router.get("/me", response_model=CartOut) 
 def get_my_cart(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    cart = db.query(Cart).filter(Cart.user_id == current_user.id).first()
+    cart = db.query(Cart).options(joinedload(Cart.cart_details))\
+             .filter(Cart.user_id == current_user.id).first()
+    
     if not cart:
-        return {"message": "Giỏ hàng trống", "cart_details": []}
-    return cart
+        return {"id": 0, "sum": 0, "user_id": current_user.id, "cart_details": []}
+        
+    return cart 

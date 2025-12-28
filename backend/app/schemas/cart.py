@@ -1,26 +1,24 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List
+from pydantic import BaseModel
+from typing import List, Optional
 
-# Base class
-class CartBase(BaseModel):
-    # @Min(value = 0) -> ge=0 (greater or equal 0)
-    sum: int = Field(0, ge=0)
-
-# Dùng cho Request tạo mới (Thường Cart được tạo tự động kèm User, không cần client gửi)
-class CartCreate(CartBase):
-    pass
-
-# Dùng cho Request Update (Cập nhật tổng số lượng)
-class CartUpdate(CartBase):
-    pass
-
-# Dùng cho Response
-class CartResponse(CartBase):
+# 1. Định nghĩa Schema cho chi tiết món hàng
+class CartDetailOut(BaseModel):
     id: int
+    product_id: int
+    quantity: int
+    price: float
+    
+    class Config:
+        from_attributes = True
+
+# 2. Định nghĩa Schema cho Giỏ hàng to
+class CartOut(BaseModel):
+    id: int
+    sum: float      
     user_id: int
     
-    # Nếu muốn trả về danh sách chi tiết giỏ hàng
-    # cart_details: List[CartDetailResponse] = []
+    # --- QUAN TRỌNG: Thêm dòng này để hiện danh sách ---
+    cart_details: List[CartDetailOut] = [] 
 
     class Config:
         from_attributes = True
