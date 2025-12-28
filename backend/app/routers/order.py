@@ -86,3 +86,38 @@ def place_order(
     db.refresh(new_order)
     
     return new_order
+
+@router.get("/all", response_model=list[OrderResponse])
+def get_all_orders(
+    db: Session = Depends(get_db), 
+    current_user = Depends(get_current_user)
+):
+    # Kiểm tra quyền Admin (Giả sử role_id = 1 là Admin)
+    if current_user.role_id != 1:
+        raise HTTPException(status_code=403, detail="Bạn không có quyền xem danh sách đơn hàng")
+    
+    # Lấy tất cả đơn hàng, sắp xếp đơn mới nhất lên đầu
+    orders = db.query(Order).order_by(Order.id.desc()).all()
+    return orders
+
+# --- 4. (ADMIN) CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG ---
+@router.put("/{order_id}/status")
+def update_order_status(
+    order_id: int, 
+    new_status: str, # Ví dụ: CONFIRMED, SHIPPING, DONE
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    # Chỉ Admin mới được duyệt đơn
+    if current_user.role_id != 1:
+        raise HTTPException(status_code=403, detail="Bạn không có quyền duyệt đơn")
+
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Không tìm thấy đơn hàng")
+
+    # Cập nhật trạng thái
+    order.status = new_status
+    db.commit()
+    
+    return {"message": "Cập nhật trạng thái thành công", "order_id": order.id, "status": new_status}
